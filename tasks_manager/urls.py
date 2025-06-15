@@ -1,5 +1,5 @@
 """
-URL configuration for Tasks-manager project.
+URL configuration for tasks_manager project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -14,9 +14,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-# from django.contrib import admin
+from .views import TasksListView
 from django.urls import path
 
 urlpatterns = [
-    #    path('admin/', admin.site.urls),
+    path("", TasksListView.as_view(), name="tasks-list" ),
 ]

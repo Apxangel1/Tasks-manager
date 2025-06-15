@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, User
+from django.contrib.auth.models import AbstractUser
 
 
 class Position(models.Model):
@@ -13,7 +13,7 @@ class Worker(AbstractUser):
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["first_name", "last_name"]
         verbose_name_plural = "workers"
 
     def __str__(self):
@@ -30,7 +30,6 @@ class TaskType(models.Model):
 class Team(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
-    projects = models.ManyToManyField("Project", related_name="teams", blank=True)
     members = models.ManyToManyField(Worker, related_name="teams", blank=True)
 
     class Meta:
