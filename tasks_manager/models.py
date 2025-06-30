@@ -54,15 +54,15 @@ class Task(models.Model):
     assignees = models.ManyToManyField(Worker, related_name="tasks", blank=True)
 
     class Priority(models.TextChoices):
-        low = "Low"
-        medium = "Medium"
-        high = "High"
-        urgent = "Urgent"
+        LOW = "L", "Low"
+        MEDIUM = "M", "Medium"
+        HIGH = "H", "High"
+        URGENT = "U", "Urgent"
 
     priority = models.CharField(
         max_length=6,
-        choices=Priority,
-        default=Priority.medium
+        choices=Priority.choices,
+        default=Priority.MEDIUM
     )
 
     class Meta:
