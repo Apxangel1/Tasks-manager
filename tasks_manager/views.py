@@ -24,4 +24,4 @@ def index(request):
 class TasksListView(generic.ListView):
     model = Task
     context_object_name = "tasks_list"
-    template_name = "base.html"
+    template_name = "manager/tasks/list_view.html"

@@ -3,7 +3,7 @@
       <h1>Tasks manager Homepage</h1>
       <p>Tasks manager has the following record counts:</p>
       <ul>
-          <li><strong>Active tasks:</strong> {{ num_tasks }}</li>
+          <li><a href="{% url 'tasks' %}"><strong>Tasks:</strong> {{ num_tasks }}</a></li>
           <li><strong>Workers:</strong> {{ num_workers }}</li>
           <li><strong>Projects:</strong> {{ num_projects }}</li>
       </ul>
