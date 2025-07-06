@@ -48,10 +48,11 @@ class Project(models.Model):
 class Task(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(max_length=255, blank=True)
-    deadline = models.DateTimeField(blank=True)
+    deadline = models.DateTimeField(blank=True, null=True)
     is_completed = models.BooleanField(default=False)
     task_type = models.ForeignKey(TaskType, on_delete=models.CASCADE)
     assignees = models.ManyToManyField(Worker, related_name="tasks", blank=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     class Priority(models.TextChoices):
         LOW = "L", "Low"
