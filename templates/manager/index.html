@@ -1,15 +1,15 @@
-{% extends "base.html" %}
+{% extends "manager/layouts/base.html" %}
 {% block content %}
       <h1>Tasks manager Homepage</h1>
-      <p>Tasks manager has the following record counts:</p>
+      <p>Total records counts:</p>
       <ul>
-          <li><a href="{% url 'tasks' %}"><strong>Tasks:</strong> {{ num_tasks }}</a></li>
-          <li><strong>Workers:</strong> {{ num_workers }}</li>
           <li><strong>Projects:</strong> {{ num_projects }}</li>
+          <li><strong>Workers:</strong> {{ num_workers }}</li>
+          <li><strong>Tasks:</strong> {{ num_tasks }}</li>
       </ul>
       <p>
         You have visited this page
-          {% if num_visits >= 1 %}
+          {% if num_visits > 1 %}
               {{ num_visits }}
           {% else %}
               for the first

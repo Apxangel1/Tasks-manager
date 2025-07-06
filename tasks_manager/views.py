@@ -1,5 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from django.views import generic
+from django.views.generic import TemplateView
 
 from .models import Task, Worker, Project
 
@@ -25,3 +27,13 @@ class TasksListView(generic.ListView):
     model = Task
     context_object_name = "tasks_list"
     template_name = "manager/tasks/list_view.html"
+
+class DashboardView(TemplateView):
+    template_name = "manager/includes/sidebar.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_teams = self.request.user.teams.all()
+        projects = Project.objects.filter(teams__in=user_teams).distinct()
+        context['projects_list'] = projects
+        return context
