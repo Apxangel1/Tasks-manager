@@ -1,11 +1,14 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views import generic
 from django.views.generic import TemplateView
 
+from .forms import WorkerForm
 from .models import Task, Worker, Project
 
-
+@login_required
 def index(request):
     num_tasks = Task.objects.count()
     num_workers = Worker.objects.count()
@@ -23,12 +26,12 @@ def index(request):
 
     return render(request, "manager/index.html", context=context)
 
-class TasksListView(generic.ListView):
+class TasksListView(LoginRequiredMixin, generic.ListView):
     model = Task
     context_object_name = "tasks_list"
     template_name = "manager/tasks/list_view.html"
 
-class DashboardView(TemplateView):
+class SidebarProjectsView(LoginRequiredMixin, TemplateView):
     template_name = "manager/includes/sidebar.html"
 
     def get_context_data(self, **kwargs):
@@ -37,3 +40,17 @@ class DashboardView(TemplateView):
         projects = Project.objects.filter(teams__in=user_teams).distinct()
         context['projects_list'] = projects
         return context
+
+class WorkerRegisterView(generic.CreateView):
+    model = Worker
+    form_class = WorkerForm
+    template_name = "authentication/sign-up.html"
+    success_url = "index"
+
+class ProfileView(generic.TemplateView):
+    template_name = "dashboard/profile.html"
+
+class PasswordChange(generic.UpdateView):
+    model = Worker
+    template_name = "authentication/password-change.html"
+    success_url = "authentication/password-change-done.html"
