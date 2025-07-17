@@ -2,15 +2,25 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
+class Organization(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name  #
+
 class Position(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    org = models.CharField(max_length=255)
 
     class Meta:
         ordering = ["name"]
 
+    def __str__(self):
+        return self.name  #
 
 class Worker(AbstractUser):
     position = models.ForeignKey(Position, on_delete=models.CASCADE, null=True)
+    org = models.CharField(max_length=255)
 
     class Meta:
         ordering = ["first_name", "last_name"]
@@ -22,6 +32,7 @@ class Worker(AbstractUser):
 
 class TaskType(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    org = models.CharField(max_length=255)
 
     class Meta:
         ordering = ["name"]
@@ -31,6 +42,7 @@ class Team(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     members = models.ManyToManyField(Worker, related_name="teams", blank=True)
+    org = models.CharField(max_length=255)
 
     class Meta:
         ordering = ["name"]
@@ -40,6 +52,7 @@ class Project(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     teams = models.ManyToManyField(Team, related_name='projects', blank=True)
+    org = models.CharField(max_length=255)
 
     class Meta:
         ordering = ["name"]
@@ -55,7 +68,9 @@ class Task(models.Model):
     assignees = models.ManyToManyField(
         Worker,
         related_name="tasks",
-        blank=True)
+        blank=True
+    )
+    org = models.CharField(max_length=255)
 
     class Priority(models.TextChoices):
         LOW = "L", "Low"

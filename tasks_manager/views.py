@@ -1,12 +1,14 @@
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.contrib.auth.views import PasswordChangeView
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic import TemplateView
 
-from .forms import WorkerForm
-from .models import Task, Worker, Project
+from .forms import WorkerForm, ProfileEditForm
+from .models import Task, Worker, Project, Organization, Position
+
 
 @login_required
 def index(request):
@@ -47,10 +49,33 @@ class WorkerRegisterView(generic.CreateView):
     template_name = "authentication/sign-up.html"
     success_url = "index"
 
-class ProfileView(generic.TemplateView):
-    template_name = "dashboard/profile.html"
+class ProfileView(LoginRequiredMixin, generic.UpdateView):
+    model = Worker
+    form_class = ProfileEditForm
+    template_name = 'dashboard/profile.html'
+    success_url = reverse_lazy('profile')
 
-class PasswordChange(generic.UpdateView):
+    def get_object(self, queryset=None):
+        return self.request.user
+
+class PasswordChange(PasswordChangeView):
     model = Worker
     template_name = "authentication/password-change.html"
     success_url = "authentication/password-change-done.html"
+
+class SelfRegisterView(generic.CreateView):
+    form_class = WorkerForm
+    template_name = "authentication/sign-up.html"
+    success_url = "index"
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+
+        org = Organization.objects.create(name=f"{user.username}'s Organization")
+
+        owner_pos, _ = Position.objects.get_or_create(name="Owner")
+        user.organization = org
+        user.position = owner_pos
+
+        user.save()
+        return redirect(self.success_url)

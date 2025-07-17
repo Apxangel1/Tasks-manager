@@ -1,5 +1,6 @@
 {% extends "manager/layouts/base.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block messages %}
 
@@ -56,11 +57,12 @@
                     <img class="mb-4 rounded-lg w-28 h-28 sm:mb-0 xl:mb-4 2xl:mb-0" src="{% static "dist/img/default-user.png" %}" alt="Jese picture">
                 {% endif %}
                 <div>
-                    {% if request.user.profile.full_name %}
-                        <h3 class="mb-1 text-xl font-bold text-gray-900 dark:text-white">{{ request.user.profile.full_name }}</h3>
+                    {% if request.user.first_name and request.user.last_name %}
+                        <h3 class="mb-1 text-xl font-bold text-gray-900 dark:text-white">{{ request.user.first_name }} {{ request.user.last_name }}</h3>
                     {% else %}
                         <h3 class="mb-1 text-xl font-bold text-gray-900 dark:text-white">{{ request.user.username }}</h3>
                     {% endif %}
+                    <label for="current_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ user.position.name }}</label>
 {#                    <div class="mb-4 text-sm text-gray-500 dark:text-gray-400">#}
 {#                        JPG, GIF or PNG. Max size of 800K#}
 {#                    </div>#}
@@ -86,23 +88,21 @@
             <h3 class="mb-4 text-xl font-semibold dark:text-white">General information</h3>
             <form method="post">
                 {% csrf_token %}
-
                 <div class="grid grid-cols-6 gap-6">
                     {% for field in form %}
                     <div class="col-span-6 sm:col-span-3">
-                        <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ field.label }}</label>
-                        {{ field }}
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ field.label }}</label>
+                         {{ field|add_class:"shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" }}
                     </div>
                     {% endfor %}
                     <div class="col-span-6 sm:col-full">
                         <button class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800" type="submit">Save all</button>
                     </div>
                 </div>
-                
             </form>
         </div>
         <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-            <h3 class="mb-4 text-xl font-semibold dark:text-white">Password information</h3>
+            <h3 class="mb-4 text-xl font-semibold dark:text-white">Password change</h3>
             <form method="post" action="{% url "change_password" %}">
                 {% csrf_token %}
 
@@ -110,7 +110,7 @@
                     <div class="col-span-6 sm:col-span-3">
                         <label for="current_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Current password</label>
                         <div class="relative w-full">
-                            <input type="password" id="current_password" name="current_password" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-100 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="Current password" required>
+                            <input type="password" id="current_password" name="current_password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Current password" required>
                             <button type="button" id="show_current_password" class="absolute top-0 right-0 p-2.5 h-full text-sm font-thin text-white rounded-r-lg">
                                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 14">
                                     <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
@@ -122,9 +122,9 @@
                         </div>
                     </div>
                     <div class="col-span-6 sm:col-span-3">
-                        <label for="new_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Current password</label>
+                        <label for="new_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">New password</label>
                         <div class="relative w-full">
-                            <input type="password" id="new_password" name="new_password" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-100 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="New password" required>
+                            <input type="password" id="new_password" name="new_password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="New password" required>
                             <button type="button" id="show_new_password" class="absolute top-0 right-0 p-2.5 h-full text-sm font-thin text-white rounded-r-lg">
                                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 14">
                                     <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
