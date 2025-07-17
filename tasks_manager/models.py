@@ -19,7 +19,7 @@ class Position(models.Model):
         return self.name  #
 
 class Worker(AbstractUser):
-    position = models.ForeignKey(Position, on_delete=models.CASCADE, null=True)
+    position = models.ForeignKey(Position, on_delete=models.CASCADE)
     org = models.CharField(max_length=255)
 
     class Meta:
