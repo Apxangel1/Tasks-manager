@@ -6,21 +6,21 @@ class Organization(models.Model):
     name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.name  #
+        return self.name
 
 class Position(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    org = models.CharField(max_length=255)
+    org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["name"]
 
     def __str__(self):
-        return self.name  #
+        return self.name
 
 class Worker(AbstractUser):
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
-    org = models.CharField(max_length=255)
+    org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["first_name", "last_name"]
@@ -32,7 +32,7 @@ class Worker(AbstractUser):
 
 class TaskType(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    org = models.CharField(max_length=255)
+    org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["name"]
@@ -42,7 +42,7 @@ class Team(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     members = models.ManyToManyField(Worker, related_name="teams", blank=True)
-    org = models.CharField(max_length=255)
+    org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["name"]
@@ -52,7 +52,7 @@ class Project(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     teams = models.ManyToManyField(Team, related_name='projects', blank=True)
-    org = models.CharField(max_length=255)
+    org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["name"]
@@ -70,7 +70,7 @@ class Task(models.Model):
         related_name="tasks",
         blank=True
     )
-    org = models.CharField(max_length=255)
+    org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     class Priority(models.TextChoices):
         LOW = "L", "Low"
