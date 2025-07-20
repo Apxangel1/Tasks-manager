@@ -1,12 +1,19 @@
+from django.forms import ModelForm, CharField, TextInput
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 
-from tasks_manager.models import Worker, Position
+from tasks_manager.models import Worker, Project, Task
 
 
 class WorkerForm(UserCreationForm):
+    organization_name = CharField(
+        max_length=255,
+        label="Organization name",
+        widget=TextInput()
+    )
+
     class Meta(UserCreationForm.Meta):
         model = Worker
-        fields = UserCreationForm.Meta.fields
+        fields = UserCreationForm.Meta.fields + ("organization_name",)
 
 class ProfileEditForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
@@ -22,3 +29,13 @@ class ProfileEditForm(UserChangeForm):
 
 class ProfilePasswordChangeForm(PasswordChangeForm):
     pass
+
+class ProjectForm(ModelForm):
+    class Meta:
+        model = Project
+        fields = "__all__"
+
+class TaskForm(ModelForm):
+    class Meta:
+        model = Task
+        fields = ["name", "description", "deadline", "task_type", "assignees", "priority"]
