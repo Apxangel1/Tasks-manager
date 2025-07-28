@@ -1,6 +1,11 @@
 {% extends "manager/layouts/base.html" %}
 {% block content %}
   <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+    <a href="{% url 'project_create' %}">
+      <button type="button" class="py-2 px-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+          Create new project
+      </button>
+    </a>
     {% if projects_list %}
       <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
           <thead class="bg-gray-100 dark:bg-gray-700">
@@ -16,7 +21,7 @@
           <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
             {% for project in projects_list %}
               <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                  onclick="window.location='{% url 'project' pk=project.pk %}'">
+                  onclick="window.location='{% url 'project' project_pk=project.pk %}'">
                 <td class="td_{{ field_name }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {{ project.name }}
                 </td>
@@ -25,7 +30,7 @@
           </tbody>
       </table>
     {% else %}
-      <p>No projects.</p>
+      <p>No existing projects.</p>
     {% endif %}
   </div>
 {% endblock %}
