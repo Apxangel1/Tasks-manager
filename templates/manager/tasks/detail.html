@@ -1,0 +1,130 @@
+{% extends "manager/layouts/base.html" %}
+{% block content %}
+
+<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+<div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
+    <div class="mb-4 col-span-full xl:mb-2">
+        <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">{{ task.name }}</h1>
+    </div>
+    <!-- Right Content -->
+    <div class="col-span-full xl:col-auto">
+      <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <h3 class="mb-4 text-xl font-semibold dark:text-white">Description</h3>
+        <div class="grid grid-cols-6 gap-6">
+          <div class="col-span-6 sm:col-span-3">
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ task.description }}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-2">
+        <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+          <h3 class="mb-4 text-xl font-semibold dark:text-white">
+            Assignees
+            <button id="openAddAssigneesModal" class="py-2 px-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+              Add
+            </button>
+          </h3>
+          {% if task.assignees.all %}
+            <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
+              <thead class="bg-gray-100 dark:bg-gray-700">
+                <tr>
+                  <th scope="col" class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                    <div class="group flex items-center gap-2 whitespace-nowrap h-6 w-48">
+                      <span class="block">Name</span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                {% for assignee in task.assignees.all %}
+                  <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                    <td class="td_{{ assignee }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                      {{ assignee }}
+                    </td>
+                    <td>
+                      <button class="remove-assignee-btn" data-worker-id="{{ assignee.pk }}">X</button>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <p>No assignees.</p>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+        </div>
+    </div>
+
+</div>
+<!-- Modal -->
+<div id="addAssigneesModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+    <div class="bg-white rounded-lg p-6 w-96 dark:bg-gray-800">
+      <h3 class="mb-4 text-xl font-semibold dark:text-white">Add Assignees</h3>
+      <form id="addAssigneesForm">
+        {% csrf_token %}
+        <label for="assigneesSelect" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Assignees</label>
+        <select id="assigneesSelect" name="assignees" multiple class="w-full p-2 rounded border dark:bg-gray-700 dark:text-white">
+          {% for worker in workers_list %}
+            <option value="{{ worker.pk }}"> {{ worker }} </option>
+          {% endfor %}
+        </select>
+        <div class="mt-4 flex justify-end gap-2">
+          <button type="button" id="cancelAssignees" class="px-4 py-2 rounded bg-gray-300 dark:bg-gray-600">
+            Cancel
+          </button>
+          <button type="submit" class="text-white bg-blue-600 bg-blue-700 font-medium rounded-lg text-sm px-4 py-2">
+            Add
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("addAssigneesModal");
+  const openBtn = document.getElementById("openAddAssigneesModal");
+  const cancelBtn = document.getElementById("cancelAssignees");
+  const form = document.getElementById("addAssigneesForm");
+
+  openBtn.addEventListener("click", () => modal.classList.remove("hidden"));
+  cancelBtn.addEventListener("click", () => modal.classList.add("hidden"));
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const selectedOptions = Array.from(form.assignees.selectedOptions);
+    const assigneeIds = selectedOptions.map(option => option.value);
+
+    if (assigneeIds.length === 0) {
+      alert("Please select at least one assignee.");
+      return;
+    }
+
+    const csrfToken = form.querySelector("[name=csrfmiddlewaretoken]").value;
+
+    const response = await fetch("{% url 'add_assignees' task_pk=task.pk %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrfToken,
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams(
+        assigneeIds.map(id => ['assignees[]', id])
+      )
+    });
+
+    if (response.ok) {
+      modal.classList.add("hidden");
+      window.location.reload();
+    } else {
+      alert("Failed to add assignees.");
+    }
+  });
+});
+</script>
+{% endblock %}

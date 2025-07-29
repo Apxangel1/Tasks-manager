@@ -1,11 +1,45 @@
 {% extends "manager/layouts/base.html" %}
+{% load widget_tweaks %}
 {% block content %}
-  <title>Creating project?</title>
-  <h1>{{ object|yesno:"Update,Create" }} project</h1>
-  <form action="" method="post" novalidate>
-    {% csrf_token %}
-    {{ form }}
 
-    <input type="submit" value="Submit" class="btn btn-primary">
-  </form>
+{% if form.errors %}
+  <div class="errorlist" style="color: red; margin-bottom: 1em;">
+    {% for field in form %}
+      {% for error in field.errors %}
+        {% if field.label == "Name" %}
+          <p><strong>{{ field.label }}:</strong> {{ error }}</p>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+      <p><strong>Error:</strong> {{ error }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+<div class="grid grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900">
+  <!-- Right Content -->
+  <div class="col-span-2">
+    <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+      <h3 class="mb-4 text-xl font-semibold dark:text-white">Project information</h3>
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-3 gap-6">
+          {% for field in form %}
+          <div class="col-span-3 sm:col-span-3">
+            <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ field.label }}</label>
+            {{ field|add_class:"shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" }}
+          </div>
+          {% endfor %}
+          <div class="col-span-3 sm:col-full">
+            <button class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800" type="submit">
+              Create project
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
 {% endblock %}
