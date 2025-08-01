@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
@@ -8,6 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views import generic, View
 from django.http import JsonResponse
+from django.db.models import Count
 
 from .forms import WorkerForm, ProfileEditForm, ProjectForm, TaskForm
 from .models import Task, Worker, Project, Team, Position, TaskType
@@ -127,9 +130,14 @@ class TaskCreateView(generic.CreateView):
     form_class = TaskForm
     success_url = reverse_lazy("projects")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['task_types'] = TaskType.objects.filter(team=self.request.user.team)
+        return context
+
     def form_valid(self, form):
         form.instance.team = self.request.user.team
-        form.instance.project = Project.objects.get(pk=self.kwargs['pk'])
+        form.instance.project = Project.objects.get(pk=self.kwargs['project_pk'])
         form.instance.is_completed = False
 
         return super().form_valid(form)
@@ -161,6 +169,35 @@ class CreateTaskTypeView(View):
             return JsonResponse({'id': category.id, 'name': category.name}, status=200)
         return JsonResponse({'error': 'Name is required'}, status=400)
 
+class DeleteTaskTypesView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            type_ids = data.get("type_ids", [])
+            if not type_ids:
+                return JsonResponse({"error": "No task types selected."}, status=400)
+
+            types = TaskType.objects.filter(pk__in=type_ids, team=request.user.team)
+
+            used_types = types.annotate(task_count=Count("tasks")).filter(task_count__gt=0)
+            if used_types.exists():
+                max_names = 3
+                names = [t.name for t in used_types]
+                if len(names) > max_names:
+                    displayed_names = ', '.join(names[:max_names]) + f' and {len(names) - max_names} more...'
+                else:
+                    displayed_names = ', '.join(names)
+
+                return JsonResponse({
+                    "warning": f"Cannot delete these types because they are assigned to tasks: {displayed_names}"
+                }, status=400)
+
+            types.delete()
+
+            return JsonResponse({"success": True})
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid data."}, status=400)
+
 @method_decorator(require_POST, name='dispatch')
 class AddAssigneesView(View):
     def post(self, request, task_pk):
@@ -172,11 +209,33 @@ class AddAssigneesView(View):
 
         return JsonResponse({'success': True, 'added': [w.pk for w in workers]})
 
+class RemoveAssigneeView(View):
+    def post(self, request, project_pk, task_pk):
+        task = get_object_or_404(Task, pk=task_pk, project__pk=project_pk)
+
+        try:
+            data = json.loads(request.body)
+            worker_id = data.get('worker_id')
+            if not worker_id:
+                return JsonResponse({'error': 'Missing worker_id'}, status=400)
+
+            worker = get_object_or_404(Worker, pk=worker_id)
+            task.assignees.remove(worker)
+            return JsonResponse({'success': True})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
 class MyTasksView(generic.ListView):
     model = Task
-    template_name = "manager/tasks/list.html"
+    template_name = "dashboard/my_tasks.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["tasks_list"] = Task.objects.filter(assignees=self.request.user)
-        return context
+    def get_queryset(self, **kwargs):
+        return Task.objects.filter(assignees__pk=self.request.user.pk)
+
+class ToggleTaskCompletionView(View):
+    def post(self, request, project_pk, task_pk):
+        task = get_object_or_404(Task, pk=task_pk)
+        task.is_completed = not task.is_completed
+        task.save()
+        return redirect('task_details', project_pk=task.project.pk, task_pk=task.pk)
