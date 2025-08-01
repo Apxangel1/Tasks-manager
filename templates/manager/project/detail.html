@@ -38,8 +38,9 @@
         </div>
       </div>
     </div>
-    <div class="col-span-2">
-        <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+    <div class="col-span-full">
+      <div class="overflow-x-auto max-w-full">
+        <div class="w-fit inline-block p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
           <h3 class="mb-4 text-xl font-semibold dark:text-white">
             Tasks
             <a href="{% url 'create_task' project_pk=project.pk %}">
@@ -48,31 +49,9 @@
               </button>
             </a>
           </h3>
-            <table class="min-w-full divide-y divide-gray-200 table-fixed dark:divide-gray-600">
-              <thead class="bg-gray-100 dark:bg-gray-700">
-                <tr>
-                  <th scope="col" class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                    <div class="group flex items-center gap-2 whitespace-nowrap h-6 w-48">
-                      <span class="block">Task name</span>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                {% for task in task_list %}
-                  <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                        onclick="window.location='{% url 'task_details' project_pk=project.pk task_pk=task.pk %}'">
-                    <td class="td_{{ task_name }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      {{ task.name }}
-                    </td>
-                  </tr>
-                {% empty %}
-                  <p>No existing tasks.</p>
-                {% endfor %}
-              </tbody>
-            </table>
+          {% include "manager/tasks/list.html" %}
         </div>
+      </div>
     </div>
 
 </div>

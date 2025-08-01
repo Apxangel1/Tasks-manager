@@ -59,6 +59,9 @@ class TaskType(models.Model):
         ordering = ["name"]
         unique_together = ("name", "team")
 
+    def __str__(self):
+        return self.name
+
 class Task(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(default="Task's description.")

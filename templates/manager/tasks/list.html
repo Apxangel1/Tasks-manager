@@ -1,16 +1,62 @@
-{% extends "manager/layouts/base.html" %}
 {% block content %}
-  <h1>List of tasks</h1>
-    {% if tasks_list %}
-      <ul>
-        {% for task in tasks_list %}
-          <li>
-            {{ task.name }} {{ task.is_completed }}
-            {{ task.deadline }} {{ task.assignees }}
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>There is no tasks yet.</p>
-    {% endif %}
+
+<div class="overflow-x-auto">
+  <table class="table-auto divide-y divide-gray-200 table-fixed dark:divide-gray-600">
+          <thead class="bg-gray-100 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                <div class="group flex items-center gap-2 whitespace-nowrap h-6 w-48">
+                  <span class="block">Name</span>
+                </div>
+              </th>
+              <th scope="col" class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                <div class="group flex items-center gap-2 whitespace-nowrap h-6 w-48">
+                  <span class="block">Status</span>
+                </div>
+              </th>
+              <th scope="col" class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                <div class="group flex items-center gap-2 whitespace-nowrap h-6 w-48">
+                  <span class="block">Priority</span>
+                </div>
+              </th>
+              <th scope="col" class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                <div class="group flex items-center gap-2 whitespace-nowrap h-6 w-48">
+                  <span class="block">Deadline</span>
+                </div>
+              </th>
+              <th scope="col" class="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                <div class="group flex items-center gap-2 whitespace-nowrap h-6 w-48">
+                  <span class="block">Type</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+            {% for task in task_list %}
+              <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                    onclick="window.location='{% url 'task_details' project_pk=task.project.pk task_pk=task.pk %}'">
+                <td class="td_{{ task_name }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ task.name }}
+                </td>
+                <td class="td_{{ task_status }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ task.is_completed|yesno:"Completed,Uncompleted" }}
+                </td>
+                <td class="td_{{ task_status }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ task.get_priority_display }}
+                </td>
+                <td class="td_{{ task_status }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ task.deadline }}
+                </td>
+                <td class="td_{{ task_status }} p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ task.task_type }}
+                </td>
+              </tr>
+            {% empty %}
+              <p>None.</p>
+            {% endfor %}
+          </tbody>
+  </table>
+</div>
+
 {% endblock %}

@@ -9,17 +9,29 @@
         <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">{{ task.name }}</h1>
     </div>
     <!-- Right Content -->
-    <div class="col-span-full xl:col-auto">
-      <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
-        <h3 class="mb-4 text-xl font-semibold dark:text-white">Description</h3>
-        <div class="grid grid-cols-6 gap-6">
-          <div class="col-span-6 sm:col-span-3">
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ task.description }}</label>
+    <div class="mb-4 col-span-1 xl:mb-2">
+      <div class="col-span-full xl:mb-2">
+        <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+          <h3 class="mb-4 text-xl font-semibold dark:text-white">Description</h3>
+          <div class="grid grid-cols-6 gap-6">
+            <div class="col-span-6 sm:col-span-3">
+              <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ task.description }}</label>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-span-2">
+    <div class="mb-8 col-span-3 xl:mb-1">
+      <div class="col-span-3 xl:mb-1">
+        <form method="post" action="{% url 'toggle_task_completion' task.project.pk task.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="text-white bg-blue-600 bg-blue-700 font-medium rounded-lg text-sm px-4 py-2">
+                {% if task.is_completed %}Mark as Incomplete{% else %}Mark as Complete{% endif %}
+            </button>
+        </form>
+      </div>
+    </div>
+    <div class="col-span-full">
         <div class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800">
           <h3 class="mb-4 text-xl font-semibold dark:text-white">
             Assignees
@@ -126,5 +138,28 @@
     }
   });
 });
+
+document.querySelectorAll('.remove-assignee-btn').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const workerId = e.target.dataset.workerId;
+      const taskId = {{ task.pk }};
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      const response = await fetch("{% url 'remove_assignee' project_pk=task.project.pk task_pk=task.pk %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ worker_id: workerId })
+      });
+
+      if (response.ok) {
+        e.target.closest('tr').remove();
+      } else {
+        alert('Failed to remove assignee');
+      }
+    });
+  });
 </script>
 {% endblock %}

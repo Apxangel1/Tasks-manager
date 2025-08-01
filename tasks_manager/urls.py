@@ -12,7 +12,9 @@ from .views import (
     CreateTaskTypeView,
     TaskDetailView,
     AddAssigneesView,
-    MyTasksView
+    MyTasksView,
+    RemoveAssigneeView,
+    ToggleTaskCompletionView, DeleteTaskTypesView
 )
 from django.urls import path
 from django.contrib.auth import views as auth_views
@@ -26,8 +28,11 @@ urlpatterns = [
     path("projects/<int:project_pk>/tasks/", TasksListView.as_view(), name="tasks"),
     path("projects/<int:project_pk>/tasks/create", TaskCreateView.as_view(), name="create_task"),
     path("projects/<int:project_pk>/tasks/<int:task_pk>/", TaskDetailView.as_view(), name="task_details"),
+    path("projects/<int:project_pk>/tasks/<int:task_pk>/toggle_task_completion", ToggleTaskCompletionView.as_view(), name="toggle_task_completion"),
     path('create_task_type', CreateTaskTypeView.as_view(), name='create_task_type'),
+    path("delete_task_types", DeleteTaskTypesView.as_view(), name="delete_task_types"),
     path('tasks/<int:task_pk>/add-assignees/', AddAssigneesView.as_view(), name='add_assignees'),
+    path('projects/<int:project_pk>/tasks/<int:task_pk>/remove_assignee/', RemoveAssigneeView.as_view(), name='remove_assignee'),
     path('tasks/my_tasks/', MyTasksView.as_view(), name='my_tasks'),
     path("login/", auth_views.LoginView.as_view(template_name='authentication/sign-in.html'), name='signin'),
     path("password_reset/", auth_views.PasswordResetView.as_view(template_name='authentication/reset-password.html'), name='password_reset'),
