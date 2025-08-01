@@ -4,7 +4,7 @@
 {% block content %}
 
     <div class="flex flex-col items-center justify-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900">
-        <a href="/static" class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white">
+        <a href="{% url 'index' %}" class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white">
             <img src="https://flowbite-admin-dashboard.vercel.app/images/logo.svg" class="mr-4 h-11" alt="FlowBite Logo">
             <span>Tasks manager</span>
         </a>
@@ -34,19 +34,19 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const usernameInput = document.getElementById("id_username");
-    const orgNameInput = document.getElementById("id_organization_name");
+    const teamNameInput = document.getElementById("id_team_name");
     let orgManuallyEdited = false;
 
-    if (!usernameInput || !orgNameInput) return;
+    if (!usernameInput || !teamNameInput) return;
 
-    orgNameInput.addEventListener("input", () => {
+    teamNameInput.addEventListener("input", () => {
       orgManuallyEdited = true;
     });
 
     usernameInput.addEventListener("input", () => {
       if (!orgManuallyEdited) {
         const username = usernameInput.value.trim();
-        orgNameInput.value = username ? `${username}'s Organization` : "";
+        teamNameInput.value = username ? `${username}'s team` : "";
       }
     });
   });
