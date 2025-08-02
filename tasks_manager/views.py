@@ -1,13 +1,15 @@
 import json
+from json import JSONDecodeError
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth import login
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
 from django.views import generic, View
 from django.http import JsonResponse
 from django.db.models import Count
@@ -111,6 +113,27 @@ class ProjectListView(generic.ListView):
     context_object_name = "projects_list"
     template_name = "manager/project/list.html"
 
+@method_decorator(csrf_protect, name='dispatch')
+class ProjectDeleteView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            project_id = data.get('project_id')
+
+            if not project_id:
+                return JsonResponse({'success': False, 'error': 'No project ID provided'}, status=400)
+
+            project = Project.objects.get(pk=project_id)
+            project.delete()
+
+            return JsonResponse({'success': True})
+
+        except Project.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Project not found'}, status=404)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 class ProjectDetailView(generic.DetailView):
     model = Project
     template_name = "manager/project/detail.html"
@@ -128,7 +151,9 @@ class TaskCreateView(generic.CreateView):
     model = Task
     template_name = "manager/tasks/create.html"
     form_class = TaskForm
-    success_url = reverse_lazy("projects")
+
+    def get_success_url(self):
+        return reverse("project", kwargs={"project_pk": self.kwargs["project_pk"]})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -141,6 +166,27 @@ class TaskCreateView(generic.CreateView):
         form.instance.is_completed = False
 
         return super().form_valid(form)
+
+@method_decorator(csrf_protect, name='dispatch')
+class TaskDeleteView(View):
+    def post(self, request, project_pk):
+        try:
+            data = json.loads(request.body)
+            task_id = data.get('task_id')
+
+            if not task_id:
+                return JsonResponse({'success': False, 'error': 'No task ID provided'}, status=400)
+
+            task = Task.objects.get(pk=task_id, project_id=project_pk)
+            task.delete()
+
+            return JsonResponse({'success': True})
+
+        except Task.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Task not found'}, status=404)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 class TasksListView(LoginRequiredMixin, generic.ListView):
     model = Task

@@ -14,7 +14,10 @@ from .views import (
     AddAssigneesView,
     MyTasksView,
     RemoveAssigneeView,
-    ToggleTaskCompletionView, DeleteTaskTypesView
+    ToggleTaskCompletionView,
+    DeleteTaskTypesView,
+    TaskDeleteView,
+    ProjectDeleteView
 )
 from django.urls import path
 from django.contrib.auth import views as auth_views
@@ -24,9 +27,11 @@ urlpatterns = [
     path("", index, name="index" ),
     path("projects/create/", ProjectCreateView.as_view(), name="project_create"),
     path("projects/", ProjectListView.as_view(), name="projects"),
+    path("project/delete/", ProjectDeleteView.as_view(), name="delete_project"),
     path("project/<int:project_pk>/", ProjectDetailView.as_view(), name="project"),
     path("projects/<int:project_pk>/tasks/", TasksListView.as_view(), name="tasks"),
     path("projects/<int:project_pk>/tasks/create", TaskCreateView.as_view(), name="create_task"),
+    path("projects/<int:project_pk>/tasks/delete", TaskDeleteView.as_view(), name="delete_task"),
     path("projects/<int:project_pk>/tasks/<int:task_pk>/", TaskDetailView.as_view(), name="task_details"),
     path("projects/<int:project_pk>/tasks/<int:task_pk>/toggle_task_completion", ToggleTaskCompletionView.as_view(), name="toggle_task_completion"),
     path('create_task_type', CreateTaskTypeView.as_view(), name='create_task_type'),
