@@ -1,11 +1,18 @@
-from django.forms import ModelForm, CharField, TextInput, DateTimeInput
+from django.forms import (
+    ModelForm,
+    CharField,
+    TextInput,
+    DateTimeInput,
+    ModelChoiceField,
+    Select
+)
 from django.contrib.auth.forms import (
     UserCreationForm,
     UserChangeForm,
     PasswordChangeForm
 )
 
-from tasks_manager.models import Worker, Project, Task
+from tasks_manager.models import Worker, Project, Task, Position
 
 
 class WorkerForm(UserCreationForm):
@@ -18,6 +25,22 @@ class WorkerForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = Worker
         fields = UserCreationForm.Meta.fields + ("team_name",)
+
+class ManualWorkerCreationForm(UserCreationForm):
+    position = ModelChoiceField(
+        queryset=Position.objects.none(),
+        label="Worker's position",
+        widget=Select()
+    )
+
+    class Meta(UserCreationForm.Meta):
+        model = Worker
+        fields = UserCreationForm.Meta.fields + ("position",)
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        self.fields["position"].queryset = Position.objects.filter(team=user.team)
 
 class ProfileEditForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):

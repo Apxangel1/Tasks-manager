@@ -4,7 +4,7 @@ from json import JSONDecodeError
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordChangeView
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
@@ -14,7 +14,7 @@ from django.views import generic, View
 from django.http import JsonResponse
 from django.db.models import Count
 
-from .forms import WorkerForm, ProfileEditForm, ProjectForm, TaskForm
+from .forms import WorkerForm, ProfileEditForm, ProjectForm, TaskForm, ManualWorkerCreationForm
 from .models import Task, Worker, Project, Team, Position, TaskType
 
 
@@ -51,6 +51,88 @@ class WorkerRegisterView(generic.CreateView):
     form_class = WorkerForm
     template_name = "authentication/sign-up.html"
     success_url = "index"
+
+
+class ManualWorkerRegisterView(LoginRequiredMixin, generic.CreateView):
+    model = Worker
+    form_class = ManualWorkerCreationForm
+    template_name = "manager/worker/create.html"
+    success_url = reverse_lazy("worker_created")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_team'] = self.request.user.team
+        context['position_ids'] = Position.objects.filter(team=self.request.user.team)
+        return context
+
+    def test_func(self):
+        return self.request.user.position.name == "Creator"
+
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.team = self.request.user.team
+
+        default_position, _ = Position.objects.get_or_create(name="Worker", team=user.team)
+        user.position = default_position
+
+        user.save()
+
+        return render(self.request, 'manager/worker/create_done.html', {
+            'username': user.username,
+            'password': form.cleaned_data['password1']
+        })
+
+class WorkerCreatedView(generic.TemplateView):
+    template_name = "manager/worker/create_done.html"
+
+@login_required
+def create_position(request):
+    if request.method == "POST":
+        name = request.POST.get("objectName")
+        position = Position.objects.create(name=name, team=request.user.team)
+        return JsonResponse({"id": position.pk, "name": position.name})
+    return JsonResponse({"error": "Invalid method"}, status=405)
+
+@login_required
+def delete_positions(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        ids = data.get("position_ids", [])
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    # Annotate with the count of assigned workers using default related name
+    positions = Position.objects.filter(pk__in=ids, team=request.user.team).annotate(worker_count=Count("worker"))
+
+    # Find positions with any assigned workers
+    positions_with_workers = positions.filter(worker_count__gt=0)
+
+    if positions_with_workers.exists():
+        names = ", ".join(pos.name for pos in positions_with_workers)
+        return JsonResponse({
+            "warning": f"Cannot delete the following positions because they are still assigned to workers: {names}"
+        }, status=400)
+
+    positions.delete()
+    return JsonResponse({"success": True})
+
+@login_required
+def delete_own_account(request):
+    if request.method == "POST":
+        user = request.user
+        logout(request)  # Log them out before deleting
+        user.delete()
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"error": "Invalid method"}, status=405)
 
 class ProfileView(LoginRequiredMixin, generic.UpdateView):
     model = Worker
