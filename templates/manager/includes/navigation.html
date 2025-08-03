@@ -26,7 +26,15 @@
               class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Manager</span>
           </a>
         </div>
-        <div class="flex items-center">
+        <div class="flex items-center gap-5">
+          {% if user.is_authenticated %}
+              <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="py-2 px-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                      Logout
+                  </button>
+              </form>
+          {% endif %}
           <button id="toggleSidebarMobileSearch" type="button"
             class="p-2 text-gray-500 rounded-lg lg:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
             <span class="sr-only">Search</span>
@@ -56,56 +64,6 @@
             Toggle dark mode
             <div class="tooltip-arrow" data-popper-arrow></div>
           </div>
-
-<!--          <div class="flex items-center ml-3">-->
-<!--            <div>-->
-<!--              <button type="button"-->
-<!--                class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"-->
-<!--                id="user-menu-button-2" aria-expanded="false" data-dropdown-toggle="dropdown-2">-->
-<!--                <span class="sr-only">Open user menu</span>-->
-<!--                {% if request.user.profile.avatar %}-->
-<!--                  <img class="w-8 h-8 rounded-full" src="{{ request.user.profile.avatar.url }}" alt="user photo">-->
-<!--                {% else %}-->
-<!--                  <img class="w-8 h-8 rounded-full" src="{% static "dist/img/default-user.png" %}" alt="user photo">-->
-<!--                {% endif %}-->
-<!--              </button>-->
-<!--            </div>-->
-
-<!--            <div-->
-<!--              class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600"-->
-<!--              id="dropdown-2">-->
-<!--              <div class="px-4 py-3" role="none">-->
-<!--                {% if request.user.is_authenticated %}-->
-<!--                  <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">-->
-<!--                    {{ request.user.email }}-->
-<!--                  </p>-->
-<!--                {% else %}-->
-<!--                <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">-->
-<!--                  guest.user@flowbite.com-->
-<!--                </p>-->
-<!--                {% endif %}-->
-<!--              </div>-->
-<!--              <ul class="py-1" role="none">-->
-<!--                <li>-->
-<!--                  <a href="/static"-->
-<!--                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"-->
-<!--                    role="menuitem">Dashboard</a>-->
-<!--                </li>-->
-<!--                <li>-->
-<!--{#                  {% if request.user.is_authenticated %}#}-->
-<!--{#                    <a href="{% url 'signout' %}"#}-->
-<!--{#                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"#}-->
-<!--{#                      role="menuitem">Sign Out</a>                  #}-->
-<!--{#                  {% else %}#}-->
-<!--{#                    <a href="{% url 'signin' %}"#}-->
-<!--{#                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"#}-->
-<!--{#                      role="menuitem">Sign In</a>#}-->
-<!--{#                  {% endif %}#}-->
-
-<!--                </li>-->
-<!--              </ul>-->
-<!--            </div>-->
-<!--          </div>-->
         </div>
       </div>
     </div>

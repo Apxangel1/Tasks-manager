@@ -11,7 +11,7 @@ from tasks_manager.models import Worker, Project, Task
 class WorkerForm(UserCreationForm):
     team_name = CharField(
         max_length=255,
-        label="Tame of your team",
+        label="Name of your team",
         widget=TextInput()
     )
 
