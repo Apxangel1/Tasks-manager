@@ -18,8 +18,8 @@ See requirements.txt
 
 ## Authors
 
-* **Volodymyr Vitsenko** - *Github* (https://github.com/Apxangel1)
+* **Volodymyr Vitsenko** - [*Github*](https://github.com/Apxangel1)
 
 ## Acknowledgments
 
-* Hat tip, for getting me straightened up, to "Web Developete" (https://www.youtube.com/watch?v=RGaW82k4dK4&list=FLqSJdfrpdTDPjultWbEN1xQ)
+* Hat tip, for getting me straightened up, to [Web Developete](https://www.youtube.com/watch?v=RGaW82k4dK4&list=FLqSJdfrpdTDPjultWbEN1xQ)
