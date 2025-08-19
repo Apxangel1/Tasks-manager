@@ -14,3 +14,9 @@ hiredis==3.1.0
 
 # Tooling
 django-celery-results==2.5.1
+
+# Testing
+pytest==7.4.4
+pytest-django==4.7.0
+selenium==4.20.0
+webdriver-manager==4.0.2
