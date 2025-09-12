@@ -36,16 +36,6 @@ def index(request):
 
     return render(request, "manager/index.html", context=context)
 
-class SidebarProjectsView(LoginRequiredMixin, generic.TemplateView):
-    template_name = "manager/includes/sidebar.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_teams = self.request.user.teams.all()
-        projects = Project.objects.filter(teams__in=user_teams).distinct()
-        context['projects_list'] = projects
-        return context
-
 class WorkerRegisterView(generic.CreateView):
     model = Worker
     form_class = WorkerForm
