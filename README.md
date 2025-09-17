@@ -2,6 +2,8 @@
 
 Allows for tracking tasks, it's assignees and deadlines with web interface and personal list of tasks for each account.
 
+![Website interface](demo.png)
+
 ### Prerequisites
 
 See requirements.txt
